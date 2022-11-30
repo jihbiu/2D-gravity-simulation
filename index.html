@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MFAK_LISTA 2</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+  </head>
+
+  <body>
+    <div class="main-header"><h1>MFAK_List 2 - Flying disks simulation</h1></div>
+    <main>
+      <div class="options-wrapper">
+        <div class="current-data">
+          <div class="current-data-option" > 
+            <h3>sum of all disks</h3> 
+            <p id="number_of_elemets">0</p> 
+          </div>
+          <div class="current-data-option" > 
+            <h3>Number of small disks</h3> 
+            <p id="number_of_disks">0</p> 
+          </div>
+          <div class="current-data-option" > 
+            <h3>Number of main disks</h3> 
+            <p id="number_of_main_disks">0</p> 
+          </div>
+          <div class="current-data-option" > 
+            <h3>Newest Main disk mass</h3> 
+            <p id="main_disk_mass">0</p> 
+          </div>
+          <div class="current-data-option" > 
+            <h3>Number of viscosities</h3> 
+            <p id="number_of_fluids">0</p> 
+          </div>
+          <div class="current-data-option" > 
+            <h3>viscosity of fluids</h3> 
+            <div id="viscosity_table"></div>
+          </div>
+        </div>
+        <div class="options"> 
+          <p id="gravity-center">Press 'q' for moving the center gravity point</p>
+          <p id="add-random-disk">Press 'w' to add random disk</p>
+          <p id="remove-random-disk">Press 'e' to remove last added disk</p>
+          <p id="collision-disk">Press 'r' for activating collision between the flying disks</p>
+          <p id="collision-main-disk">Press 's' for activating collision between the main disk and the flying disks</p>
+          <p id="gravity-disks">Press 't' add gravity between flying disks</p>
+          <p id="aerodynamic-force">Press 'y' to toggle the aerodynamic force</p>
+          <p id="speed-limit">Press 'u' to toggle the speed limit</p>
+          <p id="add-main-disk">Press 'space-bar' for adding a new main disk</p>
+          <p id="change-main-disk-mass">Use 'scroll-whell' for changing the mass of the main disk</p>
+        </div>
+      </div>
+
+    </main>
+    <script src="MainDisk.js"></script>
+    <script src="AppGUI.js"></script>
+    <script src="Disk.js"></script>
+    <script src="Fluid.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+</html>
