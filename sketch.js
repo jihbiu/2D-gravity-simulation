@@ -1,6 +1,6 @@
 // @Init program variables
-let windowWidth = 1000;
-let windowHeight = 1000;
+let windowWidth = 800;
+let windowHeight = 800;
 
 // Gui of our application
 let appGUI;
@@ -237,7 +237,7 @@ function addMainDisk(posX = pos.x, posY = pos.y, initMovable = false){
 
 function addRandomDisk(){
   disks.push(new Disk(
-    int(random(10, 100)),
+    int(random(5, 50)),
     int(random(50, windowWidth - 50)),
     int(random(50, windowHeight - 50)),
     random(-1, 1),

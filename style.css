@@ -27,10 +27,16 @@ main{
  display:flex;
  flex-direction:row-reverse; 
  align-items: center;
+  max-height: 80vh;
+  width:auto;
 }
 .p5Canvas{
   margin:auto;
   width:50%;
+}
+#defaultCanvas0{
+  max-height: 80vh;
+  max-width: 80vh;
 }
 .options-wrapper{
   display:grid;
