@@ -1,5 +1,5 @@
 # MFAK_Lista3
-#https://www.studia.pwojtowicz.pl/
+# https://www.studia.pwojtowicz.pl/
 
 Usage of the p5js library to create the project
 mostly to implement the rendering objects on the canvas
