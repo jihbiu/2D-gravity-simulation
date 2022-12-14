@@ -20,18 +20,17 @@ class Disk
         //the same function as is written below, does the same, takes less code
         //const distance = Math.sqrt(pow(otherPosX - this.pos.x, 2) + pow(otherPosY - this.pos.y, 2))
         const distance = dist(this.pos.x, this.pos.y, otherPosX, otherPosY);
-        let radiusSum = this.radius + otherDiskRadius;
-        if(Math.abs(distance) > radiusSum){
+
         //creating a aditional vector to know the direction of the force
         const tVector = createVector(
-          (otherPosX - this.pos.x) / distance,
-          (otherPosY - this.pos.y) / distance
+          (otherPosX - this.pos.x),
+          (otherPosY - this.pos.y)
         );
         
         //updating the force vector with the gravity to the mainDisk object
         this.forceVec.set(
-          6.67 * this.mass * otherMass * tVector.x / pow(distance, 2),
-          6.67 * this.mass * otherMass * tVector.y / pow(distance, 2)
+          6.67 * this.mass * otherMass * tVector.x / pow(pow(distance, 2) + 10, 3.0/2.0),
+          6.67 * this.mass * otherMass * tVector.y / pow(pow(distance, 2) + 10, 3.0/2.0)
         );
         
 
@@ -43,8 +42,8 @@ class Disk
     
         //add to our current speed the force we got on our object divided by the mass
         this.speed.add(
-          this.forceVec.x  / this.mass,
-          this.forceVec.y  / this.mass
+          this.forceVec.x * dt  / this.mass,
+          this.forceVec.y * dt / this.mass
         );
 
         if(optionalMaxSpeedDisk){
@@ -55,7 +54,7 @@ class Disk
           dt* this.speed.x,
           dt* this.speed.y
         );
-        }
+        
     }
 
     collisionBorder(windowWidth, windowHeight){
@@ -77,7 +76,6 @@ class Disk
         }
     }
 
-  
     checkDiskCollision(otherDisk, optionalMaxSpeedDisk){
         //creating a vector that is the distance between the balls that are checked
         let distanceVector = p5.Vector.sub(otherDisk.pos, this.pos)
@@ -156,7 +154,8 @@ class Disk
               this.limitSpeed(this.speedLimit);
             }
         }
-      }
+    }
+    
       checkMainDiskCollision(otherDisk, optionalMaxSpeedDisk){
         //creating a vector that is the distance between the balls that are checked
         let distanceVector = p5.Vector.sub(otherDisk.pos, this.pos)
@@ -170,56 +169,71 @@ class Disk
 
 
         if (distanceVectorMag < radiusSum) {
-            let distanceCorrection = (radiusSum - distanceVectorMag) / 2.0;
-            let d = distanceVector.copy();
-            let correctionVector = d.normalize().mult(distanceCorrection);
+          let distanceCorrection = (radiusSum - distanceVectorMag) / 2.0;
+          let d = distanceVector.copy();
+          let correctionVector = d.normalize().mult(distanceCorrection);
 
-            //otherDisk.pos.add(correctionVector);
-            
-            this.pos.sub(correctionVector);   
+          otherDisk.pos.add(correctionVector);
+          this.pos.sub(correctionVector);   
 
-            let theta = distanceVector.heading();
-            let sine = sin(theta);
-            let cosine = cos(theta);
+          let theta = distanceVector.heading();
+          let sine = sin(theta);
+          let cosine = cos(theta);
 
-            let bTemp = [new p5.Vector(), new p5.Vector()];
-            
-            let vTemp = [new p5.Vector(), new p5.Vector()];
+          let bTemp = [new p5.Vector(), new p5.Vector()];
 
-            vTemp[0].x = cosine * this.speed.x  + sine * this.speed.y ;
-            vTemp[0].y = cosine * this.speed.y  - sine * this.speed.x ;
-            vTemp[1].x = cosine * otherDisk.speed.x  + sine * otherDisk.speed.y ;
-            vTemp[1].y = cosine * otherDisk.speed.y  - sine * otherDisk.speed.x ;
+          bTemp[1].x = cosine * distanceVector.x + sine * distanceVector.y;
+          bTemp[1].y = cosine * distanceVector.y - sine * distanceVector.x;
+          
+          let vTemp = [new p5.Vector(), new p5.Vector()];
 
-            let vFinal = [new p5.Vector(), new p5.Vector()];
+          vTemp[0].x = cosine * this.speed.x  + sine * this.speed.y ;
+          vTemp[0].y = cosine * this.speed.y  - sine * this.speed.x ;
+          vTemp[1].x = cosine * otherDisk.speed.x  + sine * otherDisk.speed.y ;
+          vTemp[1].y = cosine * otherDisk.speed.y  - sine * otherDisk.speed.x ;
 
-            vFinal[0].x =
-            ((this.mass - otherDisk.mass) * vTemp[0].x + 2 * otherDisk.mass * vTemp[1].x) /
-            (this.mass + otherDisk.mass);
-            vFinal[0].y = vTemp[0].y;
+          let vFinal = [new p5.Vector(), new p5.Vector()];
+
+          vFinal[0].x =
+          ((this.mass - otherDisk.mass) * vTemp[0].x + 2 * otherDisk.mass * vTemp[1].x) /
+          (this.mass + otherDisk.mass);
+          vFinal[0].y = vTemp[0].y;
+
+          // final rotated this.velocity for b[0]
+          vFinal[1].x =((otherDisk.mass - this.mass) * vTemp[1].x + 2 * this.mass * vTemp[0].x) / (this.mass + otherDisk.mass);
+          vFinal[1].y = vTemp[1].y;
+
+          // hack to avoid clumping
+          bTemp[0].x += vFinal[0].x;
+          bTemp[1].x += vFinal[1].x;
+
+          /* Rotate ball this.positions and velocities back
+           Reverse signs in trig expressions to rotate 
+           in the opposite direction */
+          // rotate balls
+          let bFinal = [new p5.Vector(), new p5.Vector()];
+
+          bFinal[0].x = cosine * bTemp[0].x - sine * bTemp[0].y;
+          bFinal[0].y = cosine * bTemp[0].y + sine * bTemp[0].x;
+          bFinal[1].x = cosine * bTemp[1].x - sine * bTemp[1].y;
+          bFinal[1].y = cosine * bTemp[1].y + sine * bTemp[1].x;
+
+          // update balls to screen this.position
+          this.pos.add(bFinal[0]);
+
+          // update velocities
+          this.speed.x = cosine * vFinal[0].x - sine * vFinal[0].y;
+          this.speed.y = cosine * vFinal[0].y + sine * vFinal[0].x;
 
 
-            // hack to avoid clumping
-            bTemp[0].x += vFinal[0].x;
+          print(this.speed.x + " | " + this.speed.y);
 
-            /* Rotate ball this.positions and velocities back
-             Reverse signs in trig expressions to rotate 
-             in the opposite direction */
-            // rotate balls
-            let bFinal = [new p5.Vector(), new p5.Vector()];
-
-            bFinal[0].x = cosine * bTemp[0].x - sine * bTemp[0].y;
-            bFinal[0].y = cosine * bTemp[0].y + sine * bTemp[0]
-            this.pos.add(bFinal[0]);
-
-            // update velocities
-            this.speed.x = (cosine * vFinal[0].x - sine * vFinal[0].y)*dt;
-            this.speed.y = (cosine * vFinal[0].y + sine * vFinal[0].x)*dt;
-            if(optionalMaxSpeedDisk){
-              this.limitSpeed(this.speedLimit);
-            }
+          if(optionalMaxSpeedDisk){
+            this.limitSpeed(this.speedLimit);
+          }
         }
     }
+    
     limitSpeed(speedLimit){
         if(this.speed.x > speedLimit){
             this.speed.x = speedLimit;
@@ -234,6 +248,7 @@ class Disk
             this.speed.y = -speedLimit;
         }
     }
+    
     render(){
       stroke(255);
       strokeWeight(2);

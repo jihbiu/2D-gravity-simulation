@@ -6,18 +6,18 @@ let windowHeight = 800;
 let appGUI;
 
 //Delta time used for our calculations
-let dt = 1/5;
+let dt = 1/30;
 
 //create array for our disks
 let disks = [];
 let fluids = [];
 let mainDisks = [];
 
-let numberOfDisks = 10;
+let numberOfDisks = 100;
 let numberOfMainDisks = 1;
 
 
-let viscosityBaseFluid = 0.015; 
+let viscosityBaseFluid = 0.00075; 
 let baseMainDiskMass = 0;
 
 let optionalDiskCollision = false;
@@ -65,7 +65,7 @@ function setup() {
 
   appGUI = new AppGUI(fluids);
 
-  frameRate(30);
+  frameRate(60);
 }
 
 
@@ -87,8 +87,9 @@ function draw() {
 
 function updateObjects(){
   //update the movement of our main disk (by pressing q, then moving the mouse)
-  mainDisks[mainDisks.length - 1].update(windowWidth, windowHeight);
-  
+  mainDisks[mainDisks.length - 1].update(windowWidth, windowHeight, dt);
+
+  //update the aerodynmic force between the disks and the fluids(add a value to the disks)
   for(var i = 0; i < disks.length; i++){
     //fluid collision(being inside the fluid) our disk is seen here a a rectangle.
     if(optionalAerodynamicForce){
@@ -106,6 +107,8 @@ function updateObjects(){
     else{
       disks[i].viscosity = 0;
     }
+
+
     //update our disk gravity movement with the mainDisks
     for(var j = 0; j < mainDisks.length; j++){
         disks[i].update(mainDisks[j].mass, mainDisks[j].pos.x, mainDisks[j].pos.y, mainDisks[j].radius, dt, optionalMaxSpeedDisk);
@@ -121,6 +124,7 @@ function updateObjects(){
 
     //check for collision with the border
     disks[i].collisionBorder(windowWidth, windowHeight);
+
     //check for collision with another disk
     if(optionalDiskCollision){
       for(var j = 0; j < disks.length; j++)
@@ -132,8 +136,6 @@ function updateObjects(){
         for(var j = 0; j < mainDisks.length; j++)
           disks[i].checkMainDiskCollision(mainDisks[j], optionalMaxSpeedDisk);
     }
-    //disks[i].checkDiskCollision(mainDisk);
-    //disks[i].limitSpeed(1);
   }
 
 }
@@ -145,12 +147,13 @@ function renderObjects(){
       fluids[i].render();
     }
   }
-  for(var i = 0; i < disks.length; i++){
-    disks[i].render();
-  }
   for(var i = 0; i < mainDisks.length; i++){
     mainDisks[i].render();
   }
+  for(var i = 0; i < disks.length; i++){
+    disks[i].render();
+  }
+
 }
 
 function keyPressed() {
@@ -227,11 +230,18 @@ function keyPressed() {
   if(key === ' '){
     addMainDisk(mouseX, mouseY, true);
   }
+  if(key === 'x'){
+    deleteMainDisk(true);
+  }
 
 }
 
 function addMainDisk(posX = pos.x, posY = pos.y, initMovable = false){
   mainDisks.push(new MainDisk(baseMainDiskMass, posX, posY))
+  mainDisks[mainDisks.length - 1].movable = initMovable;
+}
+function deleteMainDisk(initMovable = false){
+  mainDisks.pop();
   mainDisks[mainDisks.length - 1].movable = initMovable;
 }
 
@@ -240,8 +250,8 @@ function addRandomDisk(){
     int(random(5, 50)),
     int(random(50, windowWidth - 50)),
     int(random(50, windowHeight - 50)),
-    random(-1, 1),
-    random(-1, 1),
+    random(-10, 10),
+    random(-10, 10),
     int(random(255)),
     int(random(255)),
     int(random(255))
